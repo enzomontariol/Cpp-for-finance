@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "core/backtester.h"
 
 Backtester::Backtester(): file_("marketdata.csv") {
@@ -14,22 +16,22 @@ void Backtester::init() {
     while (std::getline(file_, line)) {
         std::cout << line << std::endl;
 
+        std::stringstream ss(line);
         MarketData marketdata;
+        std::string token;
+        
+        // lire le timestamp
+        if (!std::getline(ss, token, ',')) continue;
+        marketdata.timestamp = std::stoi(token); //conversion du token en int
+        
+        if (!std::getline(ss, marketdata.instrument, ',')) continue; //le contenu est directement du bon type, pas besoin de passer par un token et une conversion
 
-        int location = line.find(',');
-        marketdata.timestamp = stoi(line.substr(0,location));
-        location = stoi(line.substr(location + 1, line.length()));
+        if (!std::getline(ss, token, ',')) continue;
+        marketdata.price = std::stof(token); //conversion du token en float
 
-        marketdata.instrument = line.substr(0,location);
-        location = stoi(line.substr(location + 1, line.length()));;
+        if (!std::getline(ss, token, ',')) continue;
+        marketdata.volume = std::stof(token); //conversion du token en float
 
-
-        marketdata.price = strtof(line.substr(0,location));
-        location = stoi(line.substr(location + 1, line.length()));
-
-
-
-        marketdata.volume = 1.;
         marketdatas.push_back(marketdata);
     }
 }
